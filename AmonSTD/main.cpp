@@ -12,7 +12,12 @@ int main()
 
 	//std::cout <<"last element: " << get<2>(t);
 
-	std::cout << makeTuple(2, 3.4, "bonk") << "\n";
+	//std::cout << makeTuple(2, 3.4, "bonk") << "\n";
 
+	auto t = makeTuple(2, 3.4, "bonk");
+
+	auto t2 = pushFront(t, 22);
+
+	std::cout << t2 ;
 	return 0;
 }

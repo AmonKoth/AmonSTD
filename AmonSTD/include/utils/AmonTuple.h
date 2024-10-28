@@ -104,4 +104,22 @@ std::ostream& operator<<(std::ostream& stream, amonTuple<Types...> const& t)
 	return stream;
 }
 
+template<typename Tuple, typename NewType>
+struct PushFrontT;
+
+template<typename... Types, typename NewType>
+struct PushFrontT<amonTuple<Types...>, NewType> {
+	using Type = amonTuple<NewType, Types...>;
+};
+
+template<typename Tuple, typename NewType>
+using PushFront = typename PushFrontT<Tuple, NewType>::Type;
+
+template<typename... Types, typename Value>
+PushFront<amonTuple<Types...>, Value>
+pushFront(amonTuple<Types...> const& tuple, Value const& value)
+{
+	return PushFront<amonTuple<Types...>, Value>(value, tuple);
+}
+
 #endif // !AMON_TUPLE_H
