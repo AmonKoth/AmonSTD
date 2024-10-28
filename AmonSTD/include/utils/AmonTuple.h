@@ -1,6 +1,8 @@
 #ifndef AMON_TUPLE_H
 #define AMON_TUPLE_H
 
+#include <iostream>
+
 template<typename... Types>
 struct amonTuple;
 
@@ -11,13 +13,15 @@ private:
 	Head head;
 	amonTuple<Rest...> rest;
 public:
+
 	amonTuple() {}
 	amonTuple(Head const& head, amonTuple<Rest...> const& rest) : head(head), rest(rest) {}
-
+	
 	template<typename VHead, typename... VRest,
 			 typename = std::enable_if_t<sizeof...(VRest) == sizeof...(Rest)>>
 	amonTuple(VHead&& vhead, VRest&&... vrest) : head(std::forward<VHead>(vhead)), rest(std::forward<VRest>(vrest)...) {}
 	
+	// to prevent incorrect conversion when constructing one tuple from another.
 	template<typename VHead, typename... VRest,
 			 typename = std::enable_if_t<sizeof...(VRest) == sizeof...(Rest)>>
 	amonTuple(amonTuple<VHead, VRest...> const& other) : head(other.getHead()), rest(other.getRest()) {}
@@ -31,6 +35,12 @@ public:
 
 template<>
 struct amonTuple<> {};
+
+template<typename... Types>
+auto makeTuple(Types&&... elems)
+{
+	return amonTuple<std::decay_t<Types>...>(std::forward<Types>(elems)...);
+}
 
 template<unsigned N>
 struct tupleGet
@@ -58,7 +68,40 @@ auto get(amonTuple<Types...> const& t)
 	return tupleGet<N>::apply(t);
 }
 
+bool operator ==(amonTuple<> const&, amonTuple<> const&)
+{
+	return true;
+}
 
+template<typename Head1, typename... Rest1,
+		 typename Head2, typename... Rest2,
+		 typename = std::enable_if_t<sizeof...(Rest1) == sizeof... (Rest2)>>
+bool operator ==(amonTuple<Head1, Rest1...> const& lhs,
+					 amonTuple<Head2, Rest2...> const& rhs)
+{
+	return lhs.getHead() == rhs.getHead() && lhs.getRest() == rhs.getRest();
+}
 
+//to print the tuple using << operator
+
+void printTuple(std::ostream& stream, amonTuple<> const&, bool isFirst = true)
+{
+	stream << (isFirst ? '(' : ')');
+}
+
+template<typename Head, typename... Rest>
+void printTuple(std::ostream& stream, amonTuple<Head, Rest...> const& t, bool isFirst = true)
+{
+	stream << (isFirst ? "(" : ",");
+	stream << t.getHead();
+	printTuple(stream, t.getRest(), false);
+}
+
+template<typename... Types>
+std::ostream& operator<<(std::ostream& stream, amonTuple<Types...> const& t)
+{
+	printTuple(stream, t);
+	return stream;
+}
 
 #endif // !AMON_TUPLE_H

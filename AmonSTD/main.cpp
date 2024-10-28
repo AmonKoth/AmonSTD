@@ -7,9 +7,12 @@
 
 int main()
 {
-	amonTuple<int, double,std::string> t(2, 3.4,"bonk");
+	//amonTuple<int, double,std::string> t(2, 3.4,"bonk");
+	//auto t = makeTuple(2, 3.4, "bonk");
 
-	std::cout <<"last element: " << get<2>(t);
+	//std::cout <<"last element: " << get<2>(t);
+
+	std::cout << makeTuple(2, 3.4, "bonk") << "\n";
 
 	return 0;
 }
