@@ -104,6 +104,7 @@ std::ostream& operator<<(std::ostream& stream, amonTuple<Types...> const& t)
 	return stream;
 }
 
+//Pushfront
 template<typename Tuple, typename NewType>
 struct PushFrontT;
 
@@ -121,5 +122,39 @@ pushFront(amonTuple<Types...> const& tuple, Value const& value)
 {
 	return PushFront<amonTuple<Types...>, Value>(value, tuple);
 }
+
+//Push Back
+template<typename V>
+amonTuple<V> pushBack(amonTuple<> const&, V const& value)
+{
+	return amonTuple<V>(value);
+}
+
+template<typename Head, typename... Rest, typename V>
+amonTuple<Head, Rest..., V> pushBack(amonTuple<Head, Rest...> const& tuple, V const& value)
+{
+	return amonTuple<Head, Rest..., V>(tuple.getHead(), pushBack(tuple.getRest(), value));
+}
+
+//Pop front
+template<typename Tuple>
+struct PopFrontT;
+
+template<typename Head, typename... Rest>
+struct PopFrontT<amonTuple<Head, Rest...>>
+{
+	using Type = amonTuple<Rest...>;
+};
+
+template<typename Tuple>
+using PopFront = typename PopFrontT<Tuple>::Type;
+
+template<typename... Types>
+PopFront<amonTuple<Types...>> 
+popFront(amonTuple<Types...> const& tuple)
+{
+	return tuple.getRest();
+}
+
 
 #endif // !AMON_TUPLE_H
